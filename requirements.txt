@@ -13,7 +13,7 @@ PyPDF2==3.0.1
 reportlab==4.0.4
 
 # AI Providers
-cerebras-cloud-sdk==0.1.0
+cerebras-cloud-sdk==1.35.0
 
 # Development and Testing
 pytest==7.4.0
