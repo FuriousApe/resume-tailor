@@ -97,7 +97,12 @@ if __name__ == '__main__':
     # Get port from environment variable or default to 5000
     port = int(os.environ.get('PORT', 5000))
     
-    # Run in production mode if not in development
-    debug = os.environ.get('FLASK_ENV') == 'development'
+    # In Codespaces, always run in debug mode for better development experience
+    debug = True
+    
+    print(f"🚀 Starting Resume Tailor on port {port}")
+    print(f"📁 Temp directory: {temp_dir}")
+    print(f"🔧 Debug mode: {debug}")
+    print(f"🌐 Access the application at: http://localhost:{port}")
     
     app.run(host='0.0.0.0', port=port, debug=debug) 
