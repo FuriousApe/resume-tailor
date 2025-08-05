@@ -112,18 +112,37 @@ class LaTeXProcessor:
         """
         Compile LaTeX to PDF and validate it's 1 page
         """
+        print("🔧 Starting LaTeX compilation...")
+        print(f"📄 LaTeX content length: {len(latex_content)}")
+        print(f"📄 LaTeX content preview: {latex_content[:200]}...")
+        
         try:
             # Create temporary directory
+            print("📁 Creating temporary directory...")
             with tempfile.TemporaryDirectory() as temp_dir:
+                print(f"📁 Temp directory created: {temp_dir}")
+                
                 # Write LaTeX content to file
                 tex_file = os.path.join(temp_dir, 'resume.tex')
+                print(f"📝 Writing LaTeX to file: {tex_file}")
                 with open(tex_file, 'w', encoding='utf-8') as f:
                     f.write(latex_content)
+                print("✅ LaTeX file written successfully")
+                
+                # Check if pdflatex exists
+                print("🔍 Checking if pdflatex is available...")
+                try:
+                    result = subprocess.run(['pdflatex', '--version'], capture_output=True, text=True, timeout=10)
+                    print(f"✅ pdflatex found: {result.stdout[:100]}...")
+                except Exception as e:
+                    print(f"❌ pdflatex not found: {e}")
+                    return None
                                 
                 # Try to compile with different approaches
                 compilation_success = False
                 
                 # First attempt: Standard compilation
+                print("🔄 Attempting first compilation (pdflatex)...")
                 result = subprocess.run(
                     ['pdflatex', '-interaction=nonstopmode', '-output-directory', temp_dir, tex_file],
                     capture_output=True,
@@ -131,12 +150,18 @@ class LaTeXProcessor:
                     cwd=temp_dir
                 )
                 
+                print(f"📊 First compilation result: returncode={result.returncode}")
+                print(f"📊 First compilation stdout: {result.stdout[:200]}...")
+                print(f"📊 First compilation stderr: {result.stderr[:200]}...")
+                
                 if result.returncode == 0:
                     compilation_success = True
+                    print("✅ First compilation successful!")
                 else:
-                    print(f"First compilation attempt failed: {result.stderr}")
+                    print(f"❌ First compilation failed: {result.stderr}")
                     
                     # Second attempt: Try with lualatex (better font support)
+                    print("🔄 Attempting second compilation (lualatex)...")
                     result = subprocess.run(
                         ['lualatex', '-interaction=nonstopmode', '-output-directory', temp_dir, tex_file],
                         capture_output=True,
@@ -144,13 +169,19 @@ class LaTeXProcessor:
                         cwd=temp_dir
                     )
                     
+                    print(f"📊 Second compilation result: returncode={result.returncode}")
+                    print(f"📊 Second compilation stderr: {result.stderr[:200]}...")
+                    
                     if result.returncode == 0:
                         compilation_success = True
+                        print("✅ Second compilation successful!")
                     else:
-                        print(f"Second compilation attempt failed: {result.stderr}")
+                        print(f"❌ Second compilation failed: {result.stderr}")
                         
                         # Third attempt: Remove problematic packages and try again
+                        print("🔄 Attempting third compilation (simplified content)...")
                         simplified_content = self._simplify_latex_content(latex_content)
+                        print(f"📄 Simplified content length: {len(simplified_content)}")
                         with open(tex_file, 'w', encoding='utf-8') as f:
                             f.write(simplified_content)
                         
@@ -161,36 +192,50 @@ class LaTeXProcessor:
                             cwd=temp_dir
                         )
                         
+                        print(f"📊 Third compilation result: returncode={result.returncode}")
+                        print(f"📊 Third compilation stderr: {result.stderr[:200]}...")
+                        
                         if result.returncode == 0:
                             compilation_success = True
+                            print("✅ Third compilation successful!")
                         else:
-                            print(f"Third compilation attempt failed: {result.stderr}")
+                            print(f"❌ Third compilation failed: {result.stderr}")
                 
                 if not compilation_success:
-                    print("All compilation attempts failed")
+                    print("❌ All compilation attempts failed")
                     return None
                 
                 # Check if PDF was created
                 pdf_file = os.path.join(temp_dir, 'resume.pdf')
+                print(f"📄 Checking for PDF file: {pdf_file}")
                 if not os.path.exists(pdf_file):
+                    print("❌ PDF file not found")
                     return None
+                
+                print(f"✅ PDF file created: {pdf_file}")
                 
                 # Validate PDF page count and return result with status
                 page_count = self._get_pdf_page_count(pdf_file)
                 is_single_page = page_count == 1
+                print(f"📊 PDF page count: {page_count}, is_single_page: {is_single_page}")
                 
                 # Copy PDF to temp directory for download
                 output_pdf = os.path.join('temp', 'tailored_resume.pdf')
+                print(f"📋 Copying PDF to: {output_pdf}")
                 shutil.copy2(pdf_file, output_pdf)
                 
-                return {
+                result = {
                     'filename': 'tailored_resume.pdf',
                     'is_single_page': is_single_page,
                     'page_count': page_count
                 }
+                print(f"✅ LaTeX compilation completed successfully: {result}")
+                return result
                     
         except Exception as e:
-            print(f"Error compiling LaTeX: {e}")
+            print(f"❌ Error compiling LaTeX: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def _simplify_latex_content(self, latex_content: str) -> str:

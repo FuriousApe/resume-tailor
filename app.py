@@ -29,7 +29,10 @@ def tailor_resume():
             return jsonify({'error': 'Job description and LaTeX resume are required'}), 400
         
         # Use the new modular approach
+        print("🔧 Calling resume_tailor.tailor_resume...")
         result = resume_tailor.tailor_resume(job_description, latex_resume, projects_data)
+        print(f"📊 Result keys: {list(result.keys()) if result else 'None'}")
+        print(f"📊 PDF result: {result.get('pdf_result')}")
         
         if result['pdf_result']:
             return jsonify({
