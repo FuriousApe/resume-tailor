@@ -72,22 +72,22 @@ def tailor_resume():
         logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
-        @app.route('/download/<filename>')
-        def download_file(filename):
-            try:
-                temp_dir = os.environ.get('TEMP_DIR', 'temp')
-                file_path = f'{temp_dir}/{filename}'
-                logger.info(f"📥 Download request for: {file_path}")
-                logger.info(f"📁 File exists: {os.path.exists(file_path)}")
-                if os.path.exists(file_path):
-                    logger.info(f"📄 File size: {os.path.getsize(file_path)} bytes")
-                return send_file(file_path, as_attachment=True)
-            except FileNotFoundError:
-                logger.error(f"❌ File not found: {filename}")
-                return jsonify({'error': 'File not found'}), 404
-            except Exception as e:
-                logger.error(f"❌ Download error: {e}")
-                return jsonify({'error': str(e)}), 500
+@app.route('/download/<filename>')
+def download_file(filename):
+    try:
+        temp_dir = os.environ.get('TEMP_DIR', 'temp')
+        file_path = f'{temp_dir}/{filename}'
+        logger.info(f"📥 Download request for: {file_path}")
+        logger.info(f"📁 File exists: {os.path.exists(file_path)}")
+        if os.path.exists(file_path):
+            logger.info(f"📄 File size: {os.path.getsize(file_path)} bytes")
+        return send_file(file_path, as_attachment=True)
+    except FileNotFoundError:
+        logger.error(f"❌ File not found: {filename}")
+        return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        logger.error(f"❌ Download error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Create temp directory if it doesn't exist
