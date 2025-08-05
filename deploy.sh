@@ -24,6 +24,22 @@ else
     echo "Docker already installed"
 fi
 
+# Ensure user is in docker group and restart Docker service
+echo "🔧 Configuring Docker permissions..."
+sudo usermod -aG docker $USER
+sudo systemctl restart docker
+sudo systemctl enable docker
+
+# Wait a moment for Docker to start
+sleep 5
+
+# Verify Docker is working
+if ! docker info &> /dev/null; then
+    echo "⚠️ Docker not accessible. Trying alternative approach..."
+    # Start a new shell session to pick up group changes
+    exec sg docker -c "$0 $*"
+fi
+
 # Install Docker Compose
 echo "📦 Installing Docker Compose..."
 if ! command -v docker-compose &> /dev/null; then
@@ -78,4 +94,10 @@ echo "📋 Useful commands:"
 echo "  View logs: docker-compose logs -f"
 echo "  Stop app: docker-compose down"
 echo "  Restart app: docker-compose restart"
-echo "  Update app: git pull && docker-compose up -d --build" 
+echo "  Update app: git pull && docker-compose up -d --build"
+echo "  Cleanup storage: ./cleanup.sh"
+
+# Set up automated cleanup (weekly)
+echo "🔄 Setting up automated cleanup..."
+chmod +x cleanup.sh
+(crontab -l 2>/dev/null; echo "0 2 * * 0 /opt/resume-tailor/cleanup.sh") | crontab - 
