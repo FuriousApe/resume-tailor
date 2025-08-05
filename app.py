@@ -5,8 +5,11 @@ from src.resume_tailor import ResumeTailor
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 
-# Initialize the resume tailor
-resume_tailor = ResumeTailor()
+resume_tailor = None
+try:
+    resume_tailor = ResumeTailor()
+except Exception as e:
+    print(f"❌ Failed to initialize ResumeTailor: {e}")
 
 @app.route('/')
 def index():
