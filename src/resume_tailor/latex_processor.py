@@ -223,7 +223,8 @@ class LaTeXProcessor:
                 print(f"📊 PDF page count: {page_count}, is_single_page: {is_single_page}")
                 
                 # Copy PDF to temp directory for download
-                output_pdf = os.path.join('temp', 'tailored_resume.pdf')
+                temp_dir = os.environ.get('TEMP_DIR', 'temp')
+                output_pdf = os.path.join(temp_dir, 'tailored_resume.pdf')
                 print(f"📋 Copying PDF to: {output_pdf}")
                 shutil.copy2(pdf_file, output_pdf)
                 
