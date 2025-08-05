@@ -13,10 +13,22 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install TeX Live full distribution
-RUN apt-get update && apt-get install -y \
-    texlive-full \
-    && rm -rf /var/lib/apt/lists/*
+# Install TeX Live with space management
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    texlive-base \
+    texlive-latex-base \
+    texlive-latex-recommended \
+    texlive-fonts-recommended \
+    texlive-latex-extra \
+    texlive-science \
+    texlive-publishers \
+    texlive-xetex \
+    texlive-luatex \
+    lmodern \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Set working directory
 WORKDIR /app
