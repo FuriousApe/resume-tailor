@@ -2,6 +2,10 @@
 
 An intelligent Flask application that tailors LaTeX resumes based on job descriptions using AI. The application uses a **marker-based approach** for precise, targeted modifications with a **modular architecture** for better maintainability and extensibility.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
+
 ## ✨ Features
 
 - **🔍 Smart Keyword Extraction**: Extracts 5-15 relevant keywords from job descriptions

@@ -17,6 +17,12 @@ setup(
     description="AI-Powered Resume Customization Tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    url="https://github.com/your-username/resume-tailor",
+    project_urls={
+        "Bug Reports": "https://github.com/your-username/resume-tailor/issues",
+        "Source": "https://github.com/your-username/resume-tailor",
+        "Documentation": "https://github.com/your-username/resume-tailor#readme",
+    },
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -28,6 +34,9 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Text Processing :: Markup :: LaTeX",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     python_requires=">=3.8",
     install_requires=requirements,
@@ -44,4 +53,6 @@ setup(
             "resume-tailor=src.resume_tailor.core:main",
         ],
     },
+    license="MIT",
+    keywords="resume, latex, ai, job-application, career, flask",
 ) 
