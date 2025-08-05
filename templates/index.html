@@ -320,8 +320,13 @@ Mobile App | React Native, Firebase | Created a cross-platform mobile app for ta
                         // Display modified resume
                         document.getElementById('modifiedResume').textContent = data.modified_resume;
 
-                        // Set download link
-                        document.getElementById('downloadBtn').href = `/download/${data.pdf_path}`;
+                                                 // Set download link
+                         // Use the same hostname and port as the current page
+                         const currentHost = window.location.hostname;
+                         const currentPort = window.location.port;
+                         const protocol = window.location.protocol;
+                         const downloadUrl = `${protocol}//${currentHost}${currentPort ? ':' + currentPort : ''}/download/${data.pdf_path}`;
+                         document.getElementById('downloadBtn').href = downloadUrl;
 
                         // Show page count warning if not single page
                         const pageCountWarning = document.getElementById('pageCountWarning');
