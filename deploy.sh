@@ -72,7 +72,16 @@ EOF
 
 # Build and start the application
 echo "🔨 Building Docker image..."
-docker-compose build
+chmod +x build-docker.sh
+./build-docker.sh
+
+if [ $? -eq 0 ]; then
+    echo "✅ Docker build successful"
+else
+    echo "❌ Docker build failed. Trying alternative approach..."
+    # Try building with more memory and no cache
+    docker build --memory=4g --no-cache -t resume-tailor:latest .
+fi
 
 echo "🚀 Starting the application..."
 docker-compose up -d

@@ -7,13 +7,13 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 
-# Install system dependencies including TeX Live
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install TeX Live full distribution
+# Install TeX Live full distribution (most reliable)
 RUN apt-get update && apt-get install -y \
     texlive-full \
     && rm -rf /var/lib/apt/lists/*
