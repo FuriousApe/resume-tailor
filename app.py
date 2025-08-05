@@ -53,4 +53,11 @@ def download_file(filename):
 if __name__ == '__main__':
     # Create temp directory if it doesn't exist
     os.makedirs('temp', exist_ok=True)
-    app.run(debug=True, port=5000) 
+    
+    # Get port from environment variable or default to 5000
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Run in production mode if not in development
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    
+    app.run(host='0.0.0.0', port=port, debug=debug) 
