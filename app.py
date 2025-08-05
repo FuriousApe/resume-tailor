@@ -82,7 +82,8 @@ def tailor_resume():
 
 if __name__ == '__main__':
     # Create temp directory if it doesn't exist
-    os.makedirs('temp', exist_ok=True)
+    temp_dir = os.environ.get('TEMP_DIR', 'temp')
+    os.makedirs(temp_dir, exist_ok=True)
     
     # Get port from environment variable or default to 5000
     port = int(os.environ.get('PORT', 5000))
