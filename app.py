@@ -1,0 +1,56 @@
+from flask import Flask, render_template, request, jsonify, send_file
+import os
+from src.resume_tailor import ResumeTailor
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+
+# Initialize the resume tailor
+resume_tailor = ResumeTailor()
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/tailor', methods=['POST'])
+def tailor_resume():
+    try:
+        data = request.get_json()
+        
+        # Extract data from request
+        job_description = data.get('job_description', '')
+        projects_data = data.get('projects', [])
+        latex_resume = data.get('latex_resume', '')
+        
+        if not job_description or not latex_resume:
+            return jsonify({'error': 'Job description and LaTeX resume are required'}), 400
+        
+        # Use the new modular approach
+        result = resume_tailor.tailor_resume(job_description, latex_resume, projects_data)
+        
+        if result['pdf_result']:
+            return jsonify({
+                'success': True,
+                'keywords': result['keywords'],
+                'modified_resume': result['modified_resume'],
+                'pdf_path': result['pdf_result']['filename'],
+                'is_single_page': result['pdf_result']['is_single_page'],
+                'page_count': result['pdf_result']['page_count']
+            })
+        else:
+            return jsonify({'error': 'Failed to compile LaTeX resume'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    try:
+        return send_file(f'temp/{filename}', as_attachment=True)
+    except FileNotFoundError:
+        return jsonify({'error': 'File not found'}), 404
+
+if __name__ == '__main__':
+    # Create temp directory if it doesn't exist
+    os.makedirs('temp', exist_ok=True)
+    app.run(debug=True, port=5000) 
