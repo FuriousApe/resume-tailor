@@ -9,8 +9,11 @@ import os
 import subprocess
 import tempfile
 import shutil
+import logging
 from typing import Dict, List, Optional
 from .api_providers import APIManager
+
+logger = logging.getLogger(__name__)
 
 
 class LaTeXProcessor:
@@ -112,30 +115,30 @@ class LaTeXProcessor:
         """
         Compile LaTeX to PDF and validate it's 1 page
         """
-        print("🔧 Starting LaTeX compilation...")
-        print(f"📄 LaTeX content length: {len(latex_content)}")
-        print(f"📄 LaTeX content preview: {latex_content[:200]}...")
+        logger.info("🔧 Starting LaTeX compilation...")
+        logger.info(f"📄 LaTeX content length: {len(latex_content)}")
+        logger.info(f"📄 LaTeX content preview: {latex_content[:200]}...")
         
         try:
             # Create temporary directory
-            print("📁 Creating temporary directory...")
+            logger.info("📁 Creating temporary directory...")
             with tempfile.TemporaryDirectory() as temp_dir:
-                print(f"📁 Temp directory created: {temp_dir}")
+                logger.info(f"📁 Temp directory created: {temp_dir}")
                 
                 # Write LaTeX content to file
                 tex_file = os.path.join(temp_dir, 'resume.tex')
-                print(f"📝 Writing LaTeX to file: {tex_file}")
+                logger.info(f"📝 Writing LaTeX to file: {tex_file}")
                 with open(tex_file, 'w', encoding='utf-8') as f:
                     f.write(latex_content)
-                print("✅ LaTeX file written successfully")
+                logger.info("✅ LaTeX file written successfully")
                 
                 # Check if pdflatex exists
-                print("🔍 Checking if pdflatex is available...")
+                logger.info("🔍 Checking if pdflatex is available...")
                 try:
                     result = subprocess.run(['pdflatex', '--version'], capture_output=True, text=True, timeout=10)
-                    print(f"✅ pdflatex found: {result.stdout[:100]}...")
+                    logger.info(f"✅ pdflatex found: {result.stdout[:100]}...")
                 except Exception as e:
-                    print(f"❌ pdflatex not found: {e}")
+                    logger.error(f"❌ pdflatex not found: {e}")
                     return None
                                 
                 # Try to compile with different approaches
