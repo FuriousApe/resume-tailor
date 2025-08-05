@@ -138,7 +138,7 @@ class LaTeXProcessor:
                     result = subprocess.run(['pdflatex', '--version'], capture_output=True, text=True, timeout=10)
                     logger.info(f"✅ pdflatex found: {result.stdout[:100]}...")
                 except Exception as e:
-                    logger.error(f"❌ pdflatex not found: {e}")
+                    logger.exception("❌ pdflatex not found:")
                     return None
                                 
                 # Try to compile with different approaches
