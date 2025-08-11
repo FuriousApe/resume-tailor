@@ -17,6 +17,35 @@ class KeywordExtractor:
     def __init__(self, api_manager: APIManager):
         self.api_manager = api_manager
     
+    def _clean_ai_response(self, content: str) -> str:
+        """Clean AI response by removing markdown formatting and extra whitespace"""
+        if not content:
+            return content
+        
+        # Remove markdown code blocks
+        content = content.strip()
+        
+        # Remove ```json and ``` markers (case insensitive)
+        import re
+        
+        # Remove starting code blocks
+        content = re.sub(r'^```(?:json|JSON)?\s*', '', content, flags=re.IGNORECASE)
+        
+        # Remove ending code blocks
+        content = re.sub(r'\s*```$', '', content)
+        
+        # Remove leading/trailing whitespace
+        content = content.strip()
+        
+        # Normalize newlines - replace multiple newlines with single newlines
+        content = re.sub(r'\n+', '\n', content)
+        
+        # Remove any remaining markdown artifacts
+        content = re.sub(r'^`+', '', content)  # Remove leading backticks
+        content = re.sub(r'`+$', '', content)  # Remove trailing backticks
+        
+        return content.strip()
+    
     def extract_keywords(self, job_description: str) -> List[str]:
         """
         Extract relevant keywords from job description using AI or fallback
@@ -35,6 +64,8 @@ class KeywordExtractor:
         
         Return only a JSON array of 5-15 keywords sorted by relevance (most relevant first).
         Example: ["Python", "React", "AWS", "Agile", "Team Leadership"]
+        
+        CRITICAL: Return ONLY the JSON array. Do NOT wrap in markdown code blocks, do NOT add ```json or ``` markers, do NOT add any explanations or text outside the JSON.
         """
         
         # Check if any API provider is available
@@ -49,8 +80,8 @@ class KeywordExtractor:
             if not content:
                 return self._basic_keyword_extraction(job_description)
             
-            # Parse the response to extract keywords
-            content = content.strip()
+            # Clean the AI response
+            content = self._clean_ai_response(content)
             
             # Try to extract JSON array
             if content.startswith('[') and content.endswith(']'):
