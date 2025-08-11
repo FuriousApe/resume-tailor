@@ -5,7 +5,7 @@ Main orchestrator that coordinates all components for resume tailoring.
 """
 
 from typing import List, Dict, Optional
-from .api_providers import APIManager
+from .api_providers import APIManager, GeminiProvider
 from .keyword_extractor import KeywordExtractor
 from .latex_processor import LaTeXProcessor
 from .section_modifiers import ThreadedSectionModifier
@@ -17,8 +17,9 @@ class ResumeTailor:
     def __init__(self):
         """Initialize all components"""
         self.api_manager = APIManager()
+        self.gemini_provider = GeminiProvider()
         self.keyword_extractor = KeywordExtractor(self.api_manager)
-        self.latex_processor = LaTeXProcessor(self.api_manager)
+        self.latex_processor = LaTeXProcessor(self.api_manager, self.gemini_provider)
         self.section_modifier = ThreadedSectionModifier(self.api_manager)
     
     def extract_keywords(self, job_description: str) -> List[str]:
@@ -50,9 +51,9 @@ class ResumeTailor:
         
         # Replace all modified sections in the original LaTeX resume
         modified_resume = self.latex_processor.replace_sections_in_resume(latex_resume, sections)
-        
+
         return modified_resume
-    
+
     def compile_latex(self, latex_content: str) -> Optional[Dict]:
         """
         Step 3: Compile LaTeX to PDF and validate it's 1 page

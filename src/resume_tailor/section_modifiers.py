@@ -17,6 +17,43 @@ class SectionModifier:
     def __init__(self, api_manager: APIManager):
         self.api_manager = api_manager
     
+    def _clean_ai_response(self, content: str) -> str:
+        """Clean AI response by removing markdown formatting and extra whitespace"""
+        if not content:
+            return content
+        
+        original_content = content
+        print(f"🔍 Cleaning AI response - Original length: {len(content)}")
+        print(f"🔍 Original content preview: {content[:100]}...")
+        
+        # Remove markdown code blocks
+        content = content.strip()
+        
+        # Remove ```latex and ``` markers (case insensitive)
+        import re
+        
+        # Remove starting code blocks
+        content = re.sub(r'^```(?:latex|LaTeX|LATEX)?\s*', '', content, flags=re.IGNORECASE)
+        
+        # Remove ending code blocks
+        content = re.sub(r'\s*```$', '', content)
+        
+        # Remove leading/trailing whitespace
+        content = content.strip()
+        
+        # Normalize newlines - replace multiple newlines with single newlines
+        content = re.sub(r'\n+', '\n', content)
+        
+        # Remove any remaining markdown artifacts
+        content = re.sub(r'^`+', '', content)  # Remove leading backticks
+        content = re.sub(r'`+$', '', content)  # Remove trailing backticks
+        
+        cleaned_content = content.strip()
+        print(f"✅ Cleaned content length: {len(cleaned_content)}")
+        print(f"✅ Cleaned content preview: {cleaned_content[:100]}...")
+        
+        return cleaned_content
+    
     def modify_experience_sections(self, experience_content: List[str], keywords: List[str]) -> List[str]:
         """Modify experience sections to include keywords using general experience markers"""
         start_time = time.time()
@@ -65,8 +102,8 @@ Return the complete modified experience section content, IT IS VERY IMPORTANT YO
                     modified_experiences.append(experience_text) # Keep original if no modification
                     continue
                 
-                # Replace the specific experience section content
-                modified_content = content.strip()
+                # Clean the AI response and replace the specific experience section content
+                modified_content = self._clean_ai_response(content)
                 modified_experiences.append(modified_content)
                 
             except Exception as e:
@@ -114,8 +151,8 @@ Return the complete modified technical skills section content, IT IS VERY IMPORT
             if not content:
                 return skills_content
             
-            # Return the modified skills content directly
-            modified_content = content.strip()
+            # Clean the AI response and return the modified skills content
+            modified_content = self._clean_ai_response(content)
             return modified_content
             
         except Exception as e:
@@ -168,8 +205,9 @@ Return the complete modified projects section content, IT IS VERY IMPORTANT YOU 
             if not content:
                 return project_content
             
-            # Add the new project content (without markers since they'll be added by the replacement function)
-            return content.strip()
+            # Clean the AI response and add the new project content
+            modified_content = self._clean_ai_response(content)
+            return modified_content
             
         except Exception as e:
             print(f"Error creating project content: {e}")
@@ -177,7 +215,7 @@ Return the complete modified projects section content, IT IS VERY IMPORTANT YOU 
         
         end_time = time.time()
         print(f"  📊 Projects modification: {end_time - start_time:.2f}s")
-        return content.strip()
+        return modified_content
 
 
 class ThreadedSectionModifier(SectionModifier):

@@ -11,7 +11,7 @@ import tempfile
 import shutil
 import logging
 from typing import Dict, List, Optional
-from .api_providers import APIManager
+from .api_providers import APIManager, GeminiProvider
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +19,9 @@ logger = logging.getLogger(__name__)
 class LaTeXProcessor:
     """Handles LaTeX content processing and compilation"""
     
-    def __init__(self, api_manager: APIManager):
+    def __init__(self, api_manager: APIManager, gemini_provider: GeminiProvider):
         self.api_manager = api_manager
+        self.gemini_provider = GeminiProvider()
     
     def parse_latex_sections(self, latex_resume: str) -> Dict[str, any]:
         """Parse LaTeX resume into sections using marker comments"""
@@ -56,7 +57,7 @@ class LaTeXProcessor:
         return sections
     
     def replace_sections_in_resume(self, latex_resume: str, sections: Dict[str, any]) -> str:
-        """Replace modified sections back into the original LaTeX resume"""
+        """Replace modified sections back into the original LaTeX resume and remove markers"""
         modified_resume = latex_resume
         
         # Replace skills section
@@ -69,10 +70,10 @@ class LaTeXProcessor:
             end_pos = modified_resume.find(end_marker)
             
             if start_pos != -1 and end_pos != -1 and end_pos > start_pos:
-                # Replace the content between markers
+                # Replace the content between markers and remove the markers
                 modified_resume = (
-                    modified_resume[:start_pos + len(start_marker)] + '\n' + sections['skills'] + '\n' +
-                    modified_resume[end_pos:]
+                    modified_resume[:start_pos] + sections['skills'] + 
+                    modified_resume[end_pos + len(end_marker):]
                 )
         
         # Replace experience sections
@@ -86,9 +87,9 @@ class LaTeXProcessor:
                 if i < len(sections['experiences']):
                     match = experience_matches[i]
                     start, end = match.span()
+                    # Replace the entire marker block with just the content (no markers)
                     modified_resume = (
-                        modified_resume[:start] + '\n' +
-                        r'%----START OF EXPERIENCE MARKER----' + '\n' + sections['experiences'][i] + r'%----END OF EXPERIENCE MARKER----' + '\n' +
+                        modified_resume[:start] + sections['experiences'][i] + 
                         modified_resume[end:]
                     )
         
@@ -102,11 +103,10 @@ class LaTeXProcessor:
             end_pos = modified_resume.find(end_marker)
             
             if start_pos != -1 and end_pos != -1 and end_pos > start_pos:
-                # Replace the content between markers
+                # Replace the content between markers and remove the markers
                 modified_resume = (
-                    modified_resume[:start_pos + len(start_marker)] + '\n' +
-                    sections['projects'] + '\n' +
-                    modified_resume[end_pos:]
+                    modified_resume[:start_pos] + sections['projects'] + 
+                    modified_resume[end_pos + len(end_marker):]
                 )
         
         return modified_resume
@@ -291,4 +291,6 @@ class LaTeXProcessor:
     
     def _validate_pdf_pages(self, pdf_path: str) -> bool:
         """Check if PDF has exactly 1 page"""
-        return self._get_pdf_page_count(pdf_path) == 1 
+        return self._get_pdf_page_count(pdf_path) == 1
+    
+    
